@@ -1,14 +1,10 @@
 name: Continuos Integration
-on: [push]
+on: [ push ]
 
 jobs:
   Build:
     runs-on: ubuntu-20.04
     steps:
-<<<<<<< HEAD
       - run: which python3
       - run: pip3 install --upgrade pip
       - run: pip3 install --upgrade build
-=======
-      - run: echo "test"
->>>>>>> e6a75cadd2b84c08d41e4b93c753f7ead8b19491
