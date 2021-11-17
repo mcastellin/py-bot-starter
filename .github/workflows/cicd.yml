@@ -5,6 +5,7 @@ jobs:
   Build:
     runs-on: ubuntu-20.04
     steps:
+      - run: ls -la
       - run: which python3
       - run: pip3 install --upgrade pip
       - run: pip3 install --upgrade build
