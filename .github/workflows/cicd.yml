@@ -26,7 +26,7 @@ jobs:
 
       - name: Bump version and publish
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        with:
+        env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
