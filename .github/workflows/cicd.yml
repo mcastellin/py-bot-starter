@@ -10,11 +10,9 @@ jobs:
 
       - name: Set branch name
         id: vars
-        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
-
-      - name: Set latest tag
-        id: vars
-        run: echo ::set-output name=cur_version::$(git describe --abbrev=0 --tags)
+        run: |
+          echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+          echo ::set-output name=cur_version::$(git describe --abbrev=0 --tags)
 
       - name: Install dependencies
         run: |
