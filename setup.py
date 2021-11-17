@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="py-bot-starter",
-    version="0.0.3",
+    version="0.0.4",
     author="Manuel Castellin",
     author_email="castellin.manuel@gmail.com",
     description="A Telegram bot framework to implement and deploy a bot in minutes",

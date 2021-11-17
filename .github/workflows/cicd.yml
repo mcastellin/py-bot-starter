@@ -7,7 +7,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, '***NO_CI***')"
     steps:
       - uses: actions/checkout@v2
-      - run: ls -la
+      - run: ls -laR
 
       - name: Set branch name
         id: vars
@@ -45,4 +45,4 @@ jobs:
 
           git add ./setup.py
           git commit -m "Bumped pypi version ***NO_CI***"
-          git push ${{ steps.vars.outputs.short_ref }} --porcelain
+          git push origin ${{ steps.vars.outputs.short_ref }} --porcelain
