@@ -6,9 +6,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - run: ls -laR
+        with:
+          fetch-depth: 0
+      - run: ls -laR src/
 
-      - name: Set branch name
+      - name: Set build variables
         id: vars
         run: |
           echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
