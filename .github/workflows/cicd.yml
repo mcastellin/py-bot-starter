@@ -4,14 +4,15 @@ on: [ push ]
 jobs:
   Build:
     runs-on: ubuntu-20.04
-    if: "!contains(github.event.head_commit.message, '***NO_CI***')"
     steps:
       - uses: actions/checkout@v2
       - run: ls -laR
 
       - name: Set branch name
         id: vars
-        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+        run: |
+          echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+          echo ::set-output name=cur_version::$(git describe --abbrev=0 --tags)
 
       - name: Install dependencies
         run: |
@@ -21,6 +22,12 @@ jobs:
       - name: Run build
         run: python3 -m build
 
+      - name: Bump version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          bumpversion --allow-dirty --current-version '0.0.0' --new-version "${{ steps.vars.outputs.cur_version }}" patch ./setup.py
+          bumpversion --allow-dirty --current-version "${{ steps.vars.outputs.cur_version }}" patch ./setup.py
+
       - name: Publish package
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -28,21 +35,14 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
 
-      - name: Bump version for next release
+      - name: Tag current version
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          version=$(python3 ./setup.py --version)
-          echo $version
-
-          bumpversion --allow-dirty --current-version $version patch ./setup.py
           newversion=$(python3 ./setup.py --version)
           echo $newversion
 
           git config --global user.email "build_agent@example.com"
           git config --global user.name "GitHub Build Agent"
 
-          git config --list
-
-          git add ./setup.py
-          git commit -m "Bumped pypi version ***NO_CI***"
-          git push origin ${{ steps.vars.outputs.short_ref }} --porcelain
+          git tag "$newversion"
+          git push --tags
