@@ -7,6 +7,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ls -laR
+      - run: git pull --tags
+      - run: git describe --abbrev=0 --tags
 
       - name: Set branch name
         id: vars
