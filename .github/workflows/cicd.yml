@@ -1,0 +1,8 @@
+name: Continuos Integration
+on: [push]
+
+jobs:
+  Build:
+    runs-on: ubuntu-20.04
+    steps:
+      - run: echo "test"
