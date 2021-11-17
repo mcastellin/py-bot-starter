@@ -19,23 +19,23 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install --upgrade pip
-          pip3 install --upgrade build bumpversion
-
-      - name: Run build
-        run: python3 -m build
+          pip3 install --upgrade build bumpversion twine
 
       - name: Bump version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           bumpversion --allow-dirty --current-version '0.0.0' --new-version "${{ steps.vars.outputs.cur_version }}" patch ./setup.py
           bumpversion --allow-dirty --current-version "${{ steps.vars.outputs.cur_version }}" patch ./setup.py
 
-      - name: Publish package
+      - name: Run build
+        run: python3 -m build
+
+      - name: Publish
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          python3 -m twine upload dist/*
 
       - name: Tag current version
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
