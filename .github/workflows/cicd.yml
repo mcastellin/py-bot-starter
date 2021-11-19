@@ -22,6 +22,9 @@ jobs:
           python3 -m pip install --upgrade pipenv
           pipenv install --dev
 
+      - name: Run tests
+        run: pipenv run python -m pytest
+
       - name: Bump version
         run: |
           pipenv run bumpversion --allow-dirty --current-version '0.0.0' --new-version "${{ steps.vars.outputs.cur_version }}" patch ./setup.py
