@@ -20,7 +20,7 @@ the generated `py_bot_starter-*.whl` file into another virtual environment.
 cd ~/my-test-project
 python3 -m venv venv/
 pip3 install --upgrade pip
-pip3 install ~/py-bot-starter/dist/py_bot_starter-X.Y.Z-py3-none-any.whl
+pip3 install --force-reinstall ~/py-bot-starter/dist/py_bot_starter-X.Y.Z-py3-none-any.whl
 ```
 
 ## Update project requirements
