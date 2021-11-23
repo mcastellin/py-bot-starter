@@ -9,11 +9,24 @@ from pymongo.database import Database
 
 __db = None
 
+DEFAULT_DATABASE = "pybotstarter"
 
-def _global_init():
+
+# todo: the global_init function should also accept database configuration as parameters, then fallback
+# todo:     to environment variables.
+def _global_init(database_name=None):
     global __db
     if __db:
         return
+
+    # todo
+    # p_host
+    # p_port
+    # p_username
+    # p_password
+    p_database_name = database_name or os.getenv("DATABASE_NAME")
+    if not p_database_name:
+        p_database_name = DEFAULT_DATABASE
 
     if os.getenv("MONGODB_USERNAME") and os.getenv("MONGODB_PASSWORD"):
         auth = {
@@ -23,16 +36,12 @@ def _global_init():
     else:
         auth = {}
 
-    database_name = os.getenv("DATABASE_NAME")
-    if not database_name:
-        raise ValueError("Cannot setup MongoDB client. DATABASE_NAME variable was not provided.")
-
     client = MongoClient(
         host=os.getenv("MONGODB_HOST", "localhost"),
         port=27017,
         **auth
     )
-    __db = client[database_name]
+    __db = client[p_database_name]
 
 
 def get_db() -> Database:
