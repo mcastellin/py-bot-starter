@@ -55,7 +55,7 @@ def get_db() -> Database:
 def init_db():
     parent_mod = "db"
     modules = os.listdir(parent_mod)
-    for m in [mod.replace(".py", "") for mod in modules if mod.endswith(".py")]:
+    for m in [mod.replace(".py", "") for mod in modules if mod.endswith(".py") and mod != "__init__.py"]:
         logging.debug("Loading db module %s", m)
         import_module(f"{parent_mod}.{m}")
 
