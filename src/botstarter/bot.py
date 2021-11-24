@@ -7,9 +7,7 @@ from requests.exceptions import ReadTimeout
 from telebot.types import BotCommand
 
 from botstarter.common import str2mdown
-
-# todo: disable send media for now until we have a working db implementation
-# from db.medias import create_media, get_media_by_path
+from botstarter.db.medias import create_media, get_media_by_path
 
 RETRY_TIMEOUT_INCREASE = 20
 bot_token = os.getenv("BOT_TOKEN", default=None)
@@ -139,25 +137,24 @@ def send_photo(chat_id, photo, timeout=30):
     )
 
 
-# todo: disable send media for now until we have a working db implementation
-# def send_or_upload_photo(chat_id, photo_path, timeout=30):
-#     logging.debug(f"Sending photo to user with id %d", chat_id)
-#
-#     media = get_media_by_path(photo_path)
-#     if media:
-#         send_photo(
-#             chat_id,
-#             photo=media.upload_id,
-#             timeout=timeout
-#         )
-#     else:
-#         logging.debug("Uploading welcome photo.")
-#         result = send_photo(
-#             chat_id,
-#             photo=open(photo_path, "rb"),
-#             timeout=timeout
-#         )
-#         create_media(photo_path, result.photo[0].file_id)
+def send_or_upload_photo(chat_id, photo_path, timeout=30):
+    logging.debug("Sending photo to user with id %d", chat_id)
+
+    media = get_media_by_path(photo_path)
+    if media:
+        send_photo(
+            chat_id,
+            photo=media.upload_id,
+            timeout=timeout
+        )
+    else:
+        logging.debug("Uploading photo with path %s", photo_path)
+        result = send_photo(
+            chat_id,
+            photo=open(photo_path, "rb"),
+            timeout=timeout
+        )
+        create_media(photo_path, result.photo[0].file_id)
 
 
 def delete_message(message=None, chat_id=None, message_id=None, timeout=20):
@@ -181,6 +178,7 @@ def delete_message(message=None, chat_id=None, message_id=None, timeout=20):
 
 
 def __gen_commands_global():
+    # todo: BotCommands should be provided by the implementing project
     return [
         BotCommand("testme", "Start a new game"),
         BotCommand("help", "Show help string"),
