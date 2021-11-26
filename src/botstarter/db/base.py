@@ -120,33 +120,27 @@ def __load_db_modules_extensions():
             import_module(f"{caller_db_modules_dir}.{m}")
 
 
-# todo: the global_init function should also accept database configuration as parameters, then fallback
-# todo:     to environment variables.
-def init_db(database_name=None):
+def init_db(host=None, port=None, database_name=None, auth=None):
     global __db
     if __db:
         return
 
-    # todo
-    # p_host
-    # p_port
-    # p_username
-    # p_password
-    p_database_name = database_name or os.getenv("DATABASE_NAME")
-    if not p_database_name:
-        p_database_name = DEFAULT_DATABASE
+    p_host = host or os.getenv("MONGODB_HOST", "localhost")
+    p_port = port or os.getenv("MONGODB_PORT", 27017)
+    p_database_name = database_name or os.getenv("DATABASE_NAME", DEFAULT_DATABASE)
 
-    if os.getenv("MONGODB_USERNAME") and os.getenv("MONGODB_PASSWORD"):
-        auth = {
-            "username": os.getenv("MONGODB_USERNAME"),
-            "password": os.getenv("MONGODB_PASSWORD")
-        }
-    else:
-        auth = {}
+    if not auth:
+        if os.getenv("MONGODB_USERNAME") and os.getenv("MONGODB_PASSWORD"):
+            auth = {
+                "username": os.getenv("MONGODB_USERNAME"),
+                "password": os.getenv("MONGODB_PASSWORD")
+            }
+        else:
+            auth = {}
 
     client = MongoClient(
-        host=os.getenv("MONGODB_HOST", "localhost"),
-        port=27017,
+        host=p_host,
+        port=p_port,
         **auth
     )
     __db = client[p_database_name]
