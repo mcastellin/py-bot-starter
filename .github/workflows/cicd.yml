@@ -26,7 +26,7 @@ jobs:
         run: pipenv run python -m pytest --cov
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
           verbose: true
 
