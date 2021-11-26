@@ -129,7 +129,7 @@ def init_db(host=None, port=None, database_name=None, auth=None):
     p_port = port or os.getenv("MONGODB_PORT", 27017)
     p_database_name = database_name or os.getenv("DATABASE_NAME", DEFAULT_DATABASE)
 
-    if not auth :
+    if not auth:
         if os.getenv("MONGODB_USERNAME") and os.getenv("MONGODB_PASSWORD"):
             auth = {
                 "username": os.getenv("MONGODB_USERNAME"),
