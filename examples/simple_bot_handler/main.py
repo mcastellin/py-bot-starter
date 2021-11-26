@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 @user_handler(commands=["echo"])
-def test_handler(msg, user, **kwargs):
+def echo_handler(msg, user, **kwargs):
     received_msg = msg.text.replace("/echo", "", 1).strip()
     if received_msg:
         reply = f"Hello {user.first_name}\nEcho: {received_msg}"
