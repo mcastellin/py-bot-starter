@@ -1,10 +1,11 @@
 import logging
 import os
 from time import sleep
+from typing import List, Optional
 
 import telebot
 from requests.exceptions import ReadTimeout
-from telebot.types import BotCommand
+from telebot import types
 
 from botstarter.common import str2mdown
 from botstarter.db.medias import create_media, get_media_by_path
@@ -177,17 +178,21 @@ def delete_message(message=None, chat_id=None, message_id=None, timeout=20):
         raise Exception("Both message and (chat_id,message_id) are None. One must be defined to delete the message.")
 
 
-def __gen_commands_global():
-    # todo: BotCommands should be provided by the implementing project
-    return [
-        BotCommand("testme", "Start a new game"),
-        BotCommand("help", "Show help string"),
-        BotCommand("start", "Show welcome message"),
-    ]
+def set_my_commands(commands: List[types.BotCommand],
+                    scope: Optional[types.BotCommandScope] = None,
+                    language_code: Optional[str] = None) -> bool:
+    return get_bot().set_my_commands(commands, scope, language_code)
 
 
-def send_set_commands():
-    get_bot().set_my_commands(
-        commands=__gen_commands_global(),
-        language_code=None
-    )
+def start():
+    """
+    Initialize the bot and start polling Telegram API for new messages.
+    """
+    from botstarter.db.base import init_db
+    init_db()
+
+    from botstarter.decorators import _init_decorators
+    _init_decorators()
+
+    logging.info("Starting Telegram bot!")
+    get_bot().infinity_polling()
