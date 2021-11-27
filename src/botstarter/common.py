@@ -96,7 +96,7 @@ def mask_text(text, pattern=None):
 def unwrap_answer(text):
     """
     Replaces autocorrected characters from users' replies
-    :param text:
-    :return:
+    :param text: test
+    :return: qualcosa
     """
     return text.replace("—", "--")
