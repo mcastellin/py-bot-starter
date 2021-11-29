@@ -48,6 +48,12 @@ def init_bot(db_opts=None, token=None, parse_mode="MarkdownV2", **kwargs) -> tel
 
 
 def get_bot() -> telebot.TeleBot:
+    """
+    Returns the global object to interact with the Telegram API.
+    The get_bot() function returns the telebot.TeleBot object that has been initialized with the init_bot() function.
+
+    :return: the telebot.TeleBot global object.
+    """
     global __bot
     if __bot:
         return __bot
