@@ -1,8 +1,15 @@
-from botstarter.common import unwrap_answer
+from botstarter.common import *
 
 
-def test_unwrap_answer():
-    user_input = "—opt"
+def test_str2mdown():
+    str = "-!.>_"
 
-    result = unwrap_answer(user_input)
-    assert "--opt" == result, "User input was not unwrapped correctly."
+    result = str2mdown(str)
+    assert "\\-\\!\\.\\>\\_" == result, "Str was not converted to mdown correctly."
+
+
+def test_empty_input_str2mdown():
+    str = None
+
+    result = str2mdown(str)
+    assert result is None, "Empty input not handled correctly."
