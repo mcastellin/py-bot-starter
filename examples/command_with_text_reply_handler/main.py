@@ -11,12 +11,16 @@ bot.init_bot()
 
 @bot.user_handler(commands=["echo"])
 def echo_handler(msg, user, **kwargs):
-    received_msg = msg.text.replace("/echo", "", 1).strip()
-    if received_msg:
-        reply = f"Hello {user.first_name}\nEcho: {received_msg}"
-    else:
-        reply = "Didn't get any message to echo.\nTry with this command: `/echo ping`"
+    bot.wait_on_user_reply(user, "echo_action")
+    bot.send_message(
+        msg.chat.id,
+        text="What message should I echo?"
+    )
 
+
+@bot.user_msg_callback(action="echo_action")
+def echo_msg_callback_handler(msg, user, params, **kwargs):
+    reply = f"Hello {user.first_name}\nEcho: {msg.text}"
     bot.send_message(
         msg.chat.id,
         text=reply
