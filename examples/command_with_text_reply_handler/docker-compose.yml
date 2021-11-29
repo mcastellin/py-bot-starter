@@ -10,4 +10,4 @@ services:
     environment:
       BOT_TOKEN: "${BOT_TOKEN}"
       MONGODB_HOST: "mongodb"
-      DATABASE_NAME: "simple_bot_handler"
+      DATABASE_NAME: "command_with_text_reply_handler"
