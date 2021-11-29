@@ -20,6 +20,7 @@ template for your own bot project. Check out [Sample Projects here](examples/REA
 Thanks goes to these wonderful people:
 
 - [Diogo Kuiaski](https://github.com/diogokuiaski)
+- [Andrea Ceccato](https://github.com/ceccatoandrea)
 
 ## License
 
