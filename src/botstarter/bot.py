@@ -16,20 +16,35 @@ __bot = None
 
 
 def init_bot(db_opts=None, token=None, parse_mode="MarkdownV2", **kwargs) -> telebot.TeleBot:
+    """
+    Initializes a Telebot's bot object and db middleware.
+
+    :param db_opts: optional: database connection options
+    :param token: optional: the Telegram bot token, can be supplied via the 'BOT_TOKEN' env variable
+    :param parse_mode: optional: the default parse mode for the bot api. Default is 'MarkdownV2'
+    :param kwargs: additional keyword arguments for the TeleBot object creation
+    :return: the created telebot.TeleBot object
+    """
     from botstarter.db.base import init_db
     if db_opts is None:
         db_opts = {}
     init_db(**db_opts)
 
-    p_bot_token = token or os.getenv("BOT_TOKEN", default=None)
-    global __bot
-    __bot = telebot.TeleBot(
-        token=p_bot_token,
-        threaded=False,
-        parse_mode=parse_mode,
-        **kwargs
-    )
-    return __bot
+    p_bot_token = token or os.getenv("BOT_TOKEN")
+
+    if p_bot_token:
+
+        global __bot
+        __bot = telebot.TeleBot(
+            token=p_bot_token,
+            threaded=False,
+            parse_mode=parse_mode,
+            **kwargs
+        )
+        return __bot
+    else:
+        raise ValueError(
+            "A bot token must be specified either via the 'token' parameter or the 'BOT_TOKEN' environment variable")
 
 
 def get_bot() -> telebot.TeleBot:
