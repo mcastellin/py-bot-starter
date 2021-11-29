@@ -21,7 +21,7 @@ def test_init_bot_token_getenv(bot_mock):
     """Test bot token is falls back to environment variable value"""
     os.environ["BOT_TOKEN"] = str(TEST_TOKEN)
 
-    bot.init_bot()
+    bot.init_bot(token="asdfasdf")
     bot_mock.assert_called_once_with(token=TEST_TOKEN, threaded=False, parse_mode='MarkdownV2')
 
 
