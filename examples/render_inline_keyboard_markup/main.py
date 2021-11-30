@@ -38,7 +38,7 @@ def _motivate(mood):
 def mood_handler(msg, user, **kwargs):
     bot.send_message(
         msg.chat.id,
-        text="What mood are you in today?",
+        text=f"Hello, {user.first_name}, what mood are you in today?",
         reply_markup=_gen_mood_markup()
     )
 
