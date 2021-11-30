@@ -4,9 +4,9 @@ from enum import Enum
 from importlib import import_module
 from os.path import isdir
 
+import pymongo
 from bson import ObjectId
-from pymongo import MongoClient
-from pymongo.database import Database
+from pymongo import database
 
 __db = None
 
@@ -53,7 +53,7 @@ class Base(dict):
             self.clear()
 
 
-def get_db() -> Database:
+def get_db() -> database.Database:
     global __db
     if __db:
         return __db
@@ -121,26 +121,44 @@ def __load_db_modules_extensions():
 
 
 def init_db(host=None, port=None, database_name=None, auth=None):
+    """
+    Initializes the database connection with MongoDB.
+    Parameters for the connection can be set using function parameters or environment variables. Every time a
+    parameter is supplied directly to the function, it will override whatever is defined as an environment variables.
+    In essence, environment variables are used as "fallback values" for missing parameters.
+
+    :param: host: the db hostname. Default is "localhost". Can also be set with "MONGODB_HOST" environment variable
+    :param: port: the db port. Default is "27017". Can also be set with "MONGODB_PORT" environment variable
+    :param: database_name: the name of the database. Default is "pybotstarter". Can also be set with "DATABASE_NAME" environment variable
+    :param: auth:   a dict containing the "username" and "password" keys for authentication. If left empty,
+                    no authentication is used. To set authentication with environment variables, both "MONGODB_USERNAME"
+                    and "MONGODB_PASSWORD" environment variables must be defined. If not a ValueError is raised.
+
+
+    """
     global __db
-    if __db:
-        return
 
     p_host = host or os.getenv("MONGODB_HOST", "localhost")
     p_port = port or os.getenv("MONGODB_PORT", 27017)
     p_database_name = database_name or os.getenv("DATABASE_NAME", DEFAULT_DATABASE)
 
     if not auth:
-        if os.getenv("MONGODB_USERNAME") and os.getenv("MONGODB_PASSWORD"):
+        env_username = os.getenv("MONGODB_USERNAME")
+        env_password = os.getenv("MONGODB_PASSWORD")
+        if env_username and env_password:
             auth = {
-                "username": os.getenv("MONGODB_USERNAME"),
-                "password": os.getenv("MONGODB_PASSWORD")
+                "username": env_username,
+                "password": env_password
             }
-        else:
+        elif not env_username and not env_password:
             auth = {}
+        else:
+            raise ValueError(
+                "Only one authentication variable is set. Please provide both MONGODB_USERNAME and MONGODB_PASSWORD.")
 
-    client = MongoClient(
+    client = pymongo.MongoClient(
         host=p_host,
-        port=p_port,
+        port=int(p_port),
         **auth
     )
     __db = client[p_database_name]
