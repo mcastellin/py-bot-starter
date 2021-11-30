@@ -31,7 +31,11 @@ Telegram's [BotFather](https://telegram.dog/BotFather).
    ```bash
    docker-compose down -v --rmi local
    ```
-   
+
 ## Available sample projects
 
 - [Simple Bot Handler](simple_bot_handler): A simple bot that can echo a message back to the user
+- [Text Reply Bot Handler](command_with_text_reply_handler): Yet another echo bot that waits for the user to send the
+  message to echo
+- [Keyboard Markups](render_inline_keyboard_markup): Select your current mood from an inline keyboard rendered by the
+  bot and get a motivational quote
