@@ -7,7 +7,7 @@ import telebot
 from requests.exceptions import ReadTimeout
 from telebot import types
 
-from botstarter.common import str2mdown
+from botstarter import util
 from botstarter.db import users, medias
 
 RETRY_TIMEOUT_INCREASE = 20
@@ -78,7 +78,7 @@ def __wrap_call(func, **kwargs):
 def __wrap_text(text, parse_mode=None):
     if text:
         if parse_mode == "MarkdownV2":
-            return str2mdown(text)
+            return util.str2mdown(text)
         else:
             return text
     else:
@@ -220,7 +220,10 @@ def set_my_commands(commands: List[types.BotCommand],
     return get_bot().set_my_commands(commands, scope, language_code)
 
 
-# todo: callback_action separator should be escaped and un-escaped if present in action string value
+"""
+Default callback_data parameters separator. If not suitable for the implementation, this separator value
+can be changed by modifying it in the global scope.
+"""
 CALLBACK_ACTION_SPLIT_SEPARATOR = "::"
 
 ALL_WAITING_ON_CALLBACKS = {}
@@ -284,9 +287,12 @@ def user_handler(*args, **kwargs):
             additional_args = {}
             if user.waiting_on:
                 logging.debug("Bot was waiting on user's text reply: %s", user.waiting_on)
-                waiting_tokens = user.waiting_on.split(CALLBACK_ACTION_SPLIT_SEPARATOR)
-                additional_args['action_name'] = waiting_tokens[0]
-                additional_args['action_params'] = waiting_tokens[1:]
+                action_name, action_params = util.unpack_callback_data(
+                    user.waiting_on,
+                    separator=CALLBACK_ACTION_SPLIT_SEPARATOR
+                )
+                additional_args['action_name'] = action_name
+                additional_args['action_params'] = action_params
                 # remove waiting on option once read
                 users.set_user_waiting_on(msg.from_user.id, waiting_on=None)
 
@@ -297,21 +303,13 @@ def user_handler(*args, **kwargs):
     return wrapper
 
 
-def gen_callback_option(callback_action, label, *values):
-    payload = CALLBACK_ACTION_SPLIT_SEPARATOR.join(values)
-    ss = str(CALLBACK_ACTION_SPLIT_SEPARATOR)
-    action_string = f"{callback_action}{ss}{payload}"
-    return [label, action_string]
-
-
-def __unpack_callback_option(value):
-    tokens = value.split(CALLBACK_ACTION_SPLIT_SEPARATOR)
-    if len(tokens) >= 2:
-        callback_action = tokens[0]
-        values = tokens[1:]
-        return callback_action, values
-    else:
-        raise ValueError("Could not unpack callback option!")
+def gen_inline_keyboard_btn(callback_action, label, *values):
+    callback_data = util.pack_callback_data(
+        callback_action,
+        params=values,
+        separator=CALLBACK_ACTION_SPLIT_SEPARATOR
+    )
+    return types.InlineKeyboardButton(text=label, callback_data=callback_data)
 
 
 def callback_response(action, admin_only=False):
@@ -331,7 +329,7 @@ def callback_response(action, admin_only=False):
         def read_callback_response(call):
             logging.debug("Received callback action: %s", call)
 
-            callback_action, values = __unpack_callback_option(call.data)
+            callback_action, values = util.unpack_callback_data(call.data, separator=CALLBACK_ACTION_SPLIT_SEPARATOR)
             logging.debug("Unpacked values for callback: action=%s, values=%s", callback_action, values)
 
             user_id = call.from_user.id
@@ -378,10 +376,10 @@ def wait_on_user_reply(user: users.User, action: str, *action_params: str):
     if not action or len(action.strip()) == 0:
         raise ValueError("Could not wait on user text reply. Action name was not specified.")
 
-    action_tokens = [action, *action_params]
+    callback_data = util.pack_callback_data(action, params=action_params, separator=CALLBACK_ACTION_SPLIT_SEPARATOR)
     users.set_user_waiting_on(
         user_id=user.id,
-        waiting_on=CALLBACK_ACTION_SPLIT_SEPARATOR.join(action_tokens)
+        waiting_on=callback_data
     )
 
 
