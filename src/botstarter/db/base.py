@@ -69,7 +69,7 @@ class Base(dict):
 
 def get_db() -> database.Database:
     global __db
-    if __db:
+    if __db is not None:
         return __db
     else:
         raise RuntimeError("""
