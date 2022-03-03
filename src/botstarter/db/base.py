@@ -3,7 +3,7 @@ import os
 from enum import Enum
 from importlib import import_module
 from os.path import isdir
-from typing import List, TypeVar
+from typing import List, TypeVar, Optional
 
 import pymongo
 from bson import ObjectId
@@ -11,7 +11,7 @@ from pymongo import database
 from pymongo.database import Collection
 from pymongo.results import UpdateResult, DeleteResult
 
-__db = None
+__db: database.Database = None
 
 DEFAULT_DATABASE = "pybotstarter"
 
@@ -58,10 +58,13 @@ class Base(dict):
         if self._id:
             self.update(self.__collection__.find_one({"_id": ObjectId(self._id)}))
 
-    def remove(self) -> DeleteResult:
+    def remove(self) -> Optional[DeleteResult]:
         if self._id:
-            self.__collection__.delete_one({"_id": ObjectId(self._id)})
+            result = self.__collection__.delete_one({"_id": ObjectId(self._id)})
             self.clear()
+            return result
+        else:
+            return None
 
 
 def get_db() -> database.Database:
