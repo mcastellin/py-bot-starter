@@ -3,37 +3,48 @@ import os
 from enum import Enum
 from importlib import import_module
 from os.path import isdir
+from typing import List, TypeVar, Optional
 
 import pymongo
 from bson import ObjectId
 from pymongo import database
+from pymongo.database import Collection
+from pymongo.results import UpdateResult, DeleteResult
 
-__db = None
+__db: database.Database = None
 
 DEFAULT_DATABASE = "pybotstarter"
 
+TBase = TypeVar("TBase", bound="Base")
+
 
 class Base(dict):
-    __collection__ = None
+    __collection__: Collection = None
 
     __getattr__ = dict.get
     __delattr__ = dict.__delitem__
     __setattr__ = dict.__setitem__
 
     @classmethod
-    def get_doc(cls, object_id):
+    def get_doc(cls, object_id) -> TBase:
         doc = cls.__collection__.find_one({"_id": ObjectId(object_id)})
         if doc:
             return cls(doc)
 
     @classmethod
-    def find_one(cls, *args, **kwargs):
+    def find(cls, *args, **kwargs) -> List[TBase]:
+        docs = cls.__collection__.find(*args, **kwargs)
+        if docs:
+            return [cls(doc) for doc in docs]
+
+    @classmethod
+    def find_one(cls, *args, **kwargs) -> TBase:
         doc = cls.__collection__.find_one(*args, **kwargs)
         if doc:
             return cls(doc)
 
     @classmethod
-    def update_one(cls, *args, **kwargs):
+    def update_one(cls, *args, **kwargs) -> UpdateResult:
         return cls.__collection__.update_one(*args, **kwargs)
 
     def save(self):
@@ -47,15 +58,18 @@ class Base(dict):
         if self._id:
             self.update(self.__collection__.find_one({"_id": ObjectId(self._id)}))
 
-    def remove(self):
+    def remove(self) -> Optional[DeleteResult]:
         if self._id:
-            self.__collection__.remove({"_id": ObjectId(self._id)})
+            result = self.__collection__.delete_one({"_id": ObjectId(self._id)})
             self.clear()
+            return result
+        else:
+            return None
 
 
 def get_db() -> database.Database:
     global __db
-    if __db:
+    if __db is not None:
         return __db
     else:
         raise RuntimeError("""
